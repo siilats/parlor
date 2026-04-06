@@ -1,5 +1,11 @@
 # Parlor
 
+This fork is an adaption of Parlor from Gemma 4 E2B + Kokoro to Qwen models for better chinese support.
+
+Original README below:
+
+---
+
 On-device, real-time multimodal AI. Have natural voice and vision conversations with an AI that runs entirely on your machine.
 
 Parlor uses [Gemma 4 E2B](https://huggingface.co/google/gemma-4-E2B-it) for understanding speech and vision, and [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) for text-to-speech. You talk, show your camera, and it talks back, all locally.
