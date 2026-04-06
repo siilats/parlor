@@ -21,3 +21,4 @@ default.profraw
 .idea/
 .vscode/
 /.env
+/.uv.lock
