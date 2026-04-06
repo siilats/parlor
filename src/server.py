@@ -18,12 +18,28 @@ from fastapi.responses import HTMLResponse
 
 import asr
 import tts
-
+#HF_REPO = "litert-community/gemma-4-E2B-it-litert-lm"
+#HF_FILENAME = "gemma-4-E2B-it.litertlm"
+HF_REPO = "litert-community/gemma-4-E4B-it-litert-lm"
+HF_FILENAME = "gemma-4-E4B-it.litertlm"
 LLM_REPO = "mlx-community/Qwen3.5-4B-MLX-4bit"
+
+
+def resolve_model_path() -> str:
+    path = os.environ.get("MODEL_PATH", "")
+    if path:
+        return path
+    from huggingface_hub import hf_hub_download
+    print(f"Downloading {HF_REPO}/{HF_FILENAME} (first run only)...")
+    return hf_hub_download(repo_id=HF_REPO, filename=HF_FILENAME)
+
+
+MODEL_PATH = resolve_model_path()
 SYSTEM_PROMPT = (
-    "你是一个友好、健谈的 AI 助手。用户正在通过麦克风和你对话，并通过摄像头展示他们的画面。"
-    "如果用户说中文，请用中文回复；如果用户说英文，请用英文回复。"
-    "如果用户没有要求的话，请控制输出在几句话以内。不要输出 Emoji。"
+    "You are a friendly, conversational AI assistant. The user is talking to you "
+    "through a microphone and showing you their camera. "
+    "You MUST always use the respond_to_user tool to reply. "
+    "First transcribe exactly what the user said, then write your response."
 )
 
 SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?。！？])\s*")
@@ -33,6 +49,19 @@ processor = None
 tts_backend = None
 asr_backend = None
 
+def load_models_gemma():
+    global engine, tts_backend
+    print(f"Loading Gemma 4 E2B from {MODEL_PATH}...")
+    engine = litert_lm.Engine(
+        MODEL_PATH,
+        backend=litert_lm.Backend.GPU,
+        vision_backend=litert_lm.Backend.GPU,
+        audio_backend=litert_lm.Backend.CPU,
+    )
+    engine.__enter__()
+    print("Engine loaded.")
+
+    tts_backend = tts.load()
 
 def load_models():
     global model, processor, tts_backend, asr_backend
@@ -149,16 +178,16 @@ async def websocket_endpoint(ws: WebSocket):
                     t_asr = time.time()
                     transcription = asr_backend.transcribe(audio_path)
                     print(f"ASR ({time.time() - t_asr:.2f}s): {transcription!r}")
-                    text_parts.append(f"用户说：{transcription}")
+                    text_parts.append(f"User said：{transcription}")
 
                 if audio_path and image_path:
                     text_parts.append(
-                        "用户同时在展示摄像头画面。如果有相关内容请提及。"
+                        "The user just spoke to you (audio) while showing their camera (image). Respond to what they said, referencing what you see if relevant."
                     )
                 elif image_path:
-                    text_parts.append("用户正在展示摄像头画面，请描述你看到的。")
+                    text_parts.append("The user is showing you their camera. Describe what you see.")
                 elif not audio_path:
-                    text_parts.append(msg.get("text", "你好！"))
+                    text_parts.append(msg.get("text", "Hello!"))
 
                 # LLM inference
                 user_content = "\n".join(text_parts)
@@ -262,4 +291,4 @@ async def websocket_endpoint(ws: WebSocket):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
-    uvicorn.run(app, host="127.0.0.1", port=port)
+    uvicorn.run(app, host="localhost", port=port)
