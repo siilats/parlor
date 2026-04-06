@@ -9,6 +9,7 @@ import tempfile
 import time
 from pathlib import Path
 
+import litert_lm
 import numpy as np
 import uvicorn
 from contextlib import asynccontextmanager
@@ -22,7 +23,7 @@ import tts
 #HF_FILENAME = "gemma-4-E2B-it.litertlm"
 HF_REPO = "litert-community/gemma-4-E4B-it-litert-lm"
 HF_FILENAME = "gemma-4-E4B-it.litertlm"
-LLM_REPO = "mlx-community/Qwen3.5-4B-MLX-4bit"
+LLM_REPO = "mlx-community/Qwen3.5-9B-MLX-4bit"
 
 
 def resolve_model_path() -> str:
@@ -291,4 +292,4 @@ async def websocket_endpoint(ws: WebSocket):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="localhost", port=port)

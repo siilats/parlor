@@ -16,7 +16,7 @@ class TTSBackend:
     sample_rate: int = 24000
 
     def generate(
-        self, text: str, voice: str = "Vivian", speed: float = 1.1
+        self, text: str, voice: str = "Ryan", speed: float = 1.1
     ) -> np.ndarray:
         raise NotImplementedError
 
@@ -24,7 +24,7 @@ class TTSBackend:
 class Qwen3TTSBackend(TTSBackend):
     """mlx-audio backend (Apple Silicon GPU via MLX)."""
 
-    TTS_REPO = "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit"
+    TTS_REPO = "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit"
 
     def __init__(self):
         from mlx_audio.tts.generate import load_model
@@ -32,10 +32,10 @@ class Qwen3TTSBackend(TTSBackend):
         self._model = load_model(self.TTS_REPO)
         self.sample_rate = self._model.sample_rate
         # Warmup: triggers pipeline init (phonemizer, spacy, etc.)
-        list(self._model.generate(text="你好", voice="Vivian", language="Auto"))
+        list(self._model.generate(text="Hello", voice="Ryan", language="Auto"))
 
     def generate(
-        self, text: str, voice: str = "Vivian", speed: float = 1.1
+        self, text: str, voice: str = "Ryan", speed: float = 1.1
     ) -> np.ndarray:
         results = list(self._model.generate(text=text, voice=voice, language="Auto"))
         return np.concatenate([np.array(r.audio) for r in results])
