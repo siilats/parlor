@@ -5,6 +5,7 @@ description = "On-device, real-time multimodal AI — have natural voice + visio
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.135.2",
+    "litert-lm>=0.10.1",
     "mlx-audio>=0.4.1",
     "mlx-vlm>=0.4.2",
     "numpy>=2.4.4",
