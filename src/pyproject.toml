@@ -6,13 +6,16 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.135.2",
     "litert-lm>=0.10.1",
-    "mlx-audio>=0.4.1",
+    "mlx-audio>=0.4.2",
     "mlx-vlm>=0.4.2",
     "numpy>=2.4.4",
     "pillow>=11.0.0",
     "soundfile>=0.13.1",
     "torch>=2.11.0",
     "torchvision>=0.26.0",
-    "uvicorn[standard]>=0.42.0",
+    "uvicorn[standard]>=0.43.0",
     "websockets>=16.0",
+    "kokoro-onnx>=0.5.0; sys_platform == 'linux'",
+    "misaki[en]>=0.9.4; sys_platform == 'darwin'",
+    "num2words>=0.5.14; sys_platform == 'darwin'"
 ]

@@ -24,6 +24,9 @@ import tts
 HF_REPO = "litert-community/gemma-4-E4B-it-litert-lm"
 HF_FILENAME = "gemma-4-E4B-it.litertlm"
 LLM_REPO = "mlx-community/Qwen3.5-9B-MLX-4bit"
+#LLM_REPO = "mlx-community/Qwen3.5-27B-Claude-4.6-Opus-Distilled-MLX-4bit"
+#LLM_REPO = "mlx-community/Qwen3.5-REAP-97B-A10B-4bit"
+LLM_REPO = "mlx-community/Qwen3.5-35B-A3B-4bit"
 
 
 def resolve_model_path() -> str:
@@ -36,11 +39,11 @@ def resolve_model_path() -> str:
 
 
 MODEL_PATH = resolve_model_path()
+#"You are a friendly, conversational AI assistant. The user is talking to you "
+
 SYSTEM_PROMPT = (
-    "You are a friendly, conversational AI assistant. The user is talking to you "
-    "through a microphone and showing you their camera. "
-    "You MUST always use the respond_to_user tool to reply. "
-    "First transcribe exactly what the user said, then write your response."
+    "You are a friendly pilot flying a plane. The ATC is talking to you "
+    "through a microphone and you see the pilot through the camera. Your tail number is November 2 2 foxtrot yankee. Always start with that and skip roger. When atc says negative, they mean you made a mistake, try to correct it"
 )
 
 SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?。！？])\s*")
@@ -183,7 +186,7 @@ async def websocket_endpoint(ws: WebSocket):
 
                 if audio_path and image_path:
                     text_parts.append(
-                        "The user just spoke to you (audio) while showing their camera (image). Respond to what they said, referencing what you see if relevant."
+                        "The user just spoke to you (audio) while showing their camera (image). Respond like you would if you were a real pilot, don't add anything extra."
                     )
                 elif image_path:
                     text_parts.append("The user is showing you their camera. Describe what you see.")
