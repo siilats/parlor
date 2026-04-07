@@ -1,4 +1,5 @@
 """Qwen3 TTS via mlx-audio (Apple Silicon)."""
+import base64
 import os
 import platform
 import sys
@@ -23,7 +24,10 @@ class TTSBackend:
 class Qwen3TTSBackend(TTSBackend):
     """mlx-audio backend (Apple Silicon GPU via MLX)."""
 
-    TTS_REPO = "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit"
+    TTTS_REPO = "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit"
+
+
+
 
     def __init__(self):
         from mlx_audio.tts.generate import load_model
@@ -46,13 +50,24 @@ class MLXBackend(TTSBackend):
     def __init__(self):
         from mlx_audio.tts.generate import load_model
 
-        self._model = load_model("mlx-community/Kokoro-82M-bf16")
+        # self._model = load_model("mlx-community/Kokoro-82M-bf16")
+        self._model = load_model("mlx-community/fish-audio-s2-pro-bf16")
+
         self.sample_rate = self._model.sample_rate
         # Warmup: triggers pipeline init (phonemizer, spacy, etc.)
-        list(self._model.generate(text="Hello", voice="af_heart", speed=1.0))
+        audio=  open('0.wav', 'rb').read()
+        ref_text = open('0.txt').read().strip()
+
+        # list(self._model.generate(text="Hello", voice="af_heart", speed=1.0, language="et",
+        #                           ref_audio=audio_b64, ref_text=ref_text))
+        self.ref_text = "Hello"
+        tone = "[female] [happy] [clear] " + self.ref_text12
+        result = list(self._model.generate(text=tone, voice="af_heart", speed=1.0, language="et"))
+        self.ref_audio = result[0].audio
+
 
     def generate(self, text: str, voice: str = "af_heart", speed: float = 1.1) -> np.ndarray:
-        results = list(self._model.generate(text=text, voice=voice, speed=speed))
+        results = list(self._model.generate(text=text, voice=voice, speed=speed, ref_audio=self.ref_audio, ref_text=self.ref_text))
         return np.concatenate([np.array(r.audio) for r in results])
 
 
@@ -70,7 +85,7 @@ class ONNXBackend(TTSBackend):
         self.sample_rate = 24000
 
     def generate(self, text: str, voice: str = "af_heart", speed: float = 1.1) -> np.ndarray:
-        pcm, _sr = self._model.create(text, voice=voice, speed=speed)
+        pcm, _sr = self._model.create(text, voice=voice, speed=speed )
         return pcm
 
 

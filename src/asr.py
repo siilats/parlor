@@ -11,8 +11,9 @@ def _is_apple_silicon() -> bool:
 class MLXASRBackend:
     def __init__(self):
         from mlx_audio.stt import load as load_stt
+#        self._model = load_stt("mlx-community/Qwen3-ASR-1.7B-8bit")
 
-        self._model = load_stt("mlx-community/Qwen3-ASR-0.6B-8bit")
+        self._model = load_stt("mlx-community/parakeet-tdt-0.6b-v3")
         print("ASR: mlx-audio loaded (Apple GPU)")
 
     def transcribe(self, audio_path: str) -> str:
