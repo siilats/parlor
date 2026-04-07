@@ -61,7 +61,7 @@ class MLXBackend(TTSBackend):
         # list(self._model.generate(text="Hello", voice="af_heart", speed=1.0, language="et",
         #                           ref_audio=audio_b64, ref_text=ref_text))
         self.ref_text = "Hello"
-        tone = "[female] [happy] [clear] " + self.ref_text12
+        tone = "[female] [happy] [clear] " + self.ref_text
         result = list(self._model.generate(text=tone, voice="af_heart", speed=1.0, language="et"))
         self.ref_audio = result[0].audio
 
