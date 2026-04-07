@@ -19,6 +19,32 @@ from fastapi.responses import HTMLResponse
 
 import asr
 import tts
+
+lang="ee"
+if lang=="ee":
+    USER_CAMERA_FEEDBACK = "Kasutaja näitab sulle oma kaamerat. Kirjelda, mida sa näed."
+
+    USER_SPOKE_CAMERA = "Kasutaja just rääkis sinuga (heli), näidates samal ajal oma kaamerat (pilti). Vasta lapsele aeglaselt ja selgelt."
+
+    USER_SAID_ = "Kasutaja ütles："
+
+    SYSTEM_PROMPT = (
+    "Sa oled sõbralik tehisintellekt, kes räägib 3-aastase lapsega. Ta räägib läbi mikrofoni ja sa näed teda läbi kaamera. Talle meeldivad Põrsas Peppa ja Elsa, seega räägi nendest. Ära kasuta emotikone ega paksu kirja * sümboleid."
+    )
+
+    LLM_SKIPPING_RESPONSE = "Katkestatud pärast LLM-i, vastus jäetakse vahele"
+else:
+    USER_CAMERA_FEEDBACK = "The user is showing you their camera. Describe what you see."
+
+    USER_SPOKE_CAMERA = "The user just spoke to you (audio) while showing their camera (image). Respond slowly and clearly to the kid."
+
+    USER_SAID_ = "User said："
+
+    SYSTEM_PROMPT = (
+        "You are a friendly AI talking to a 3 year old. She is  "
+        "through a microphone and you see her through the camera. She loves Peppa Pig and Elsa so talk about them. Do not use emoticons or bold * symbols."
+    )
+    LLM_SKIPPING_RESPONSE = "Interrupted after LLM, skipping response"
 #HF_REPO = "litert-community/gemma-4-E2B-it-litert-lm"
 #HF_FILENAME = "gemma-4-E2B-it.litertlm"
 HF_REPO = "litert-community/gemma-4-E4B-it-litert-lm"
@@ -40,11 +66,10 @@ def resolve_model_path() -> str:
 
 MODEL_PATH = resolve_model_path()
 #"You are a friendly, conversational AI assistant. The user is talking to you "
+#"You are a friendly pilot flying a plane. The ATC is talking to you "
+#"through a microphone and you see the pilot through the camera. Your tail number is November 2 2 foxtrot yankee. Always start with that and skip roger. When atc says negative, they mean you made a mistake, try to correct it"
 
-SYSTEM_PROMPT = (
-    "You are a friendly pilot flying a plane. The ATC is talking to you "
-    "through a microphone and you see the pilot through the camera. Your tail number is November 2 2 foxtrot yankee. Always start with that and skip roger. When atc says negative, they mean you made a mistake, try to correct it"
-)
+
 
 SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?。！？])\s*")
 
@@ -182,14 +207,15 @@ async def websocket_endpoint(ws: WebSocket):
                     t_asr = time.time()
                     transcription = asr_backend.transcribe(audio_path)
                     print(f"ASR ({time.time() - t_asr:.2f}s): {transcription!r}")
-                    text_parts.append(f"User said：{transcription}")
+                    text_parts.append(USER_SAID_ + f"{transcription}")
+                #"The user just spoke to you (audio) while showing their camera (image). Respond like you would if you were a real pilot, don't add anything extra."
 
                 if audio_path and image_path:
                     text_parts.append(
-                        "The user just spoke to you (audio) while showing their camera (image). Respond like you would if you were a real pilot, don't add anything extra."
+                        USER_SPOKE_CAMERA
                     )
                 elif image_path:
-                    text_parts.append("The user is showing you their camera. Describe what you see.")
+                    text_parts.append(USER_CAMERA_FEEDBACK)
                 elif not audio_path:
                     text_parts.append(msg.get("text", "Hello!"))
 
@@ -208,7 +234,7 @@ async def websocket_endpoint(ws: WebSocket):
                 print(f"LLM ({llm_time:.2f}s): {response}")
 
                 if interrupted.is_set():
-                    print("Interrupted after LLM, skipping response")
+                    print(LLM_SKIPPING_RESPONSE)
                     continue
 
                 reply = {
