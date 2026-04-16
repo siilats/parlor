@@ -20,7 +20,7 @@ from fastapi.responses import HTMLResponse
 import asr
 import tts
 
-lang="ee"
+lang="en"
 if lang=="ee":
     USER_CAMERA_FEEDBACK = "Kasutaja näitab sulle oma kaamerat. Kirjelda, mida sa näed."
 
@@ -39,10 +39,11 @@ else:
     USER_SPOKE_CAMERA = "The user just spoke to you (audio) while showing their camera (image). Respond slowly and clearly to the kid."
 
     USER_SAID_ = "User said："
-
+# She loves Peppa Pig and Elsa so talk about them
     SYSTEM_PROMPT = (
-        "You are a friendly AI talking to a 3 year old. She is  "
-        "through a microphone and you see her through the camera. She loves Peppa Pig and Elsa so talk about them. Do not use emoticons or bold * symbols."
+        "You are a friendly AI talking to a 3 year old named Stella. She is listening "
+        "through a microphone and you see her through the camera. "
+        "She is showing you peppa pigs and wants you to play. Do not use emoticons or bold * symbols."
     )
     LLM_SKIPPING_RESPONSE = "Interrupted after LLM, skipping response"
 #HF_REPO = "litert-community/gemma-4-E2B-it-litert-lm"
@@ -188,6 +189,7 @@ async def websocket_endpoint(ws: WebSocket):
 
             audio_path = image_path = None
             interrupted.clear()
+            content = []
 
             try:
                 if msg.get("audio"):

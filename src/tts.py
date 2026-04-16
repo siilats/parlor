@@ -50,8 +50,8 @@ class MLXBackend(TTSBackend):
     def __init__(self):
         from mlx_audio.tts.generate import load_model
 
-        # self._model = load_model("mlx-community/Kokoro-82M-bf16")
-        self._model = load_model("mlx-community/fish-audio-s2-pro-bf16")
+        self._model = load_model("mlx-community/Kokoro-82M-bf16")
+        # self._model = load_model("mlx-community/fish-audio-s2-pro-bf16")
 
         self.sample_rate = self._model.sample_rate
         # Warmup: triggers pipeline init (phonemizer, spacy, etc.)
